@@ -1,73 +1,122 @@
-# React + TypeScript + Vite
+# 📚 Boighor – Minimal Library Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live Link:** [https://boighor-three.vercel.app/](https://boighor-three.vercel.app/)  
+Boighor is a **minimal library management system** built with **React**, **Redux Toolkit Query (RTK Query)**, and **TypeScript**.  
+It provides a clean, responsive, and fully client-side experience for managing books and borrow records — **without authentication, category filters, or payments**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Project Overview
 
-## React Compiler
+Boighor demonstrates the use of **modern frontend technologies** to create a simple yet effective library system that interacts with a **RESTful API**.  
+The goal is to show **state management**, **API integration**, and **UI design best practices** using **RTK Query** and **TypeScript**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Users can:
+- View a list of books
+- Add, edit, or delete books
+- Borrow books with limited quantity validation
+- View a simple borrow summary
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🔓 Public Routes
+All pages are accessible without login. The focus is on core book and borrowing functionality.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 🛠️ Book Management
+**Book List Table**
+- Displays all books in a table format.  
+- Columns: `Title`, `Author`, `Genre`, `ISBN`, `Copies`, `Availability`, and `Actions`.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Actions**
+- 📝 **Edit Book:** Opens a pre-filled form to update book details. Updates instantly in the UI.  
+  - If `copies = 0`, the book is automatically marked as unavailable.  
+- 🗑️ **Delete Book:** Opens a confirmation dialog before deleting the book.  
+- 📖 **Borrow Book:** Opens a form to borrow the selected book.  
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Add New Book**
+- Button opens a form with fields: `Title`, `Author`, `Genre`, `ISBN`, `Description`, `Copies`, and `Available (optional, defaults to true)`.  
+- After creation, redirects to book list and updates UI immediately.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 📘 Borrow Book
+- Opened from the “Borrow” button in the book list.  
+- Fields: `Quantity` (number), `Due Date` (date).  
+- **Business Logic:**
+  - Quantity cannot exceed available copies.
+  - When copies reach `0`, the book is marked unavailable.
+- On success:
+  - Borrow data is stored via API.
+  - Success message is shown.
+  - Redirects to **Borrow Summary** page.
+
+---
+
+### 📊 Borrow Summary
+- Displays a list of borrowed books with their **total borrowed quantity**.
+- Data is retrieved from an **aggregation API**.
+- Columns: `Book Title`, `ISBN`, `Total Quantity Borrowed`.
+
+---
+
+## 🧩 Page Structure
+
+| Route | Description |
+|--------|--------------|
+| `/books` | Displays a list of all books with options to view, edit, delete, and borrow. |
+| `/books/:id` | Detailed view of a single book’s information. |
+| `/summary` | Displays an aggregated summary of borrowed books. |
+
+---
+
+## 🧠 Tech Stack
+
+| Category | Technologies |
+|-----------|--------------|
+| **Frontend** | React, TypeScript |
+| **State Management & API** | Redux Toolkit Query (RTK Query) |
+| **Styling** | Tailwind CSS |
+| **Routing** | React Router DOM |
+| **Deployment** | Vercel |
+
+---
+
+## 💻 UI Components
+
+- **Navbar:** Navigation links to all main routes.  
+- **Book Table/List:** Displays books with interactive actions.  
+- **Dialog & Forms:** Used for add, edit, and borrow operations.  
+- **Footer:** Simple footer with site info or credits.
+
+---
+
+## 🎨 UI/UX Design
+
+- **Minimalist & Clean:** Focus on simplicity and readability.  
+- **Responsive Layout:** Fully adaptive to mobile, tablet, and desktop devices.  
+- **User-Friendly:** Clear buttons, well-labeled forms, and consistent design.
+
+---
+
+## 🧪 Core Functionalities
+
+- CRUD operations for books.
+- Borrow system with validation.
+- Real-time UI updates using RTK Query cache invalidation.
+- Aggregated borrow summary using API integration.
+
+---
+
+## ⚙️ Setup Instructions
+
+1. **Clone repository**
+   ```bash
+   git clone <your-repo-url>
+   cd <repo-directory>
+    ```
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
