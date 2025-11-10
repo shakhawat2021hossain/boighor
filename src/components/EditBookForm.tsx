@@ -1,50 +1,54 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+"use client";
+
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAddBookMutation } from "@/redux/api/baseApi";
+// import { Switch } from "@/components/ui/switch";
+import type { IBook } from "@/types";
 import { bookSchema, type bookFormData } from "@/types/book.type";
 import toast from "react-hot-toast";
+import { useEditBookMutation } from "@/redux/api/baseApi";
 
-interface AddBookFormProps {
-    onSuccess?: () => void;
+interface EditBookFormProps {
+    book: IBook;
 }
 
-const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
-    const [addBook] = useAddBookMutation();
+const EditBookForm = ({ book }: EditBookFormProps) => {
+    const [editBook] = useEditBookMutation();
 
     const form = useForm({
         resolver: zodResolver(bookSchema),
         defaultValues: {
-            title: "",
-            author: "",
-            genre: "FICTION",
-            isbn: "",
-            description: "",
-            copies: 1,
-            available: true
+            title: book.title,
+            author: book.author,
+            genre: book.genre,
+            isbn: book.isbn,
+            description: book.description || "",
+            copies: book.copies
         },
     });
 
     const onSubmit = async (data: bookFormData) => {
+        const copyNum = Number(data.copies)
+        console.log()
+        const editData = { ...data, copies: copyNum }
         try {
-            await addBook(data).unwrap();
-            toast.success("Book added successfully!");
-            form.reset();
-            onSuccess?.();
+            await editBook({ bookId: book._id, editData }).unwrap();
+            toast.success("Book updated successfully!");
         } catch {
-            toast.error("Failed to add book");
+            toast.error("Failed to update book.");
         }
     };
 
     return (
         <Card className="border-none shadow-none">
-            <CardHeader className="text-center">
-                <CardTitle className="text-xl font-semibold">Add New Book</CardTitle>
-                <CardDescription>Fill in the details below to add a new book</CardDescription>
+            <CardHeader>
+                <CardTitle>Edit Book</CardTitle>
+                <CardDescription>Update the book information below</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -57,7 +61,7 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
                                 <FormItem>
                                     <FormLabel>Title</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter book title" {...field} />
+                                        <Input {...field} placeholder="Book title" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -72,7 +76,7 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
                                 <FormItem>
                                     <FormLabel>Author</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter author name" {...field} />
+                                        <Input {...field} placeholder="Author name" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -84,18 +88,14 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
                             control={form.control}
                             name="genre"
                             render={({ field }) => (
-                                <FormItem className="w-full">
+                                <FormItem>
                                     <FormLabel>Genre</FormLabel>
                                     <FormControl>
-                                        <Select
-                                            onValueChange={(value) => field.onChange(value)}
-                                            defaultValue={field.value}
-
-                                        >
+                                        <Select onValueChange={(value) => field.onChange(value)} defaultValue={field.value}>
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Select genre" />
                                             </SelectTrigger>
-                                            <SelectContent className="w-full">
+                                            <SelectContent>
                                                 <SelectItem value="FICTION">Fiction</SelectItem>
                                                 <SelectItem value="NON_FICTION">Non-Fiction</SelectItem>
                                                 <SelectItem value="SCIENCE">Science</SelectItem>
@@ -118,7 +118,7 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
                                 <FormItem>
                                     <FormLabel>ISBN</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter ISBN number" {...field} />
+                                        <Input {...field} placeholder="ISBN number" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -133,7 +133,7 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
                                 <FormItem>
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter book description (optional)" {...field} />
+                                        <Input {...field} placeholder="Book description" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -148,15 +148,33 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
                                 <FormItem>
                                     <FormLabel>Copies</FormLabel>
                                     <FormControl>
-                                        <Input type="number" placeholder="Enter number of copies" {...field} />
+                                        <Input type="number"
+                                            {...field}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
+                        {/* Available */}
+                        {/* <FormField
+                            control={form.control}
+                            name="available"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center justify-between">
+                                    <FormLabel>Available</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        /> */}
+
                         <Button type="submit" className="w-full">
-                            Add Book
+                            Update Book
                         </Button>
                     </form>
                 </Form>
@@ -165,4 +183,4 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
     );
 };
 
-export default AddBookForm;
+export default EditBookForm;

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGetBooksQuery } from "@/redux/api/baseApi";
 import AddBookForm from "@/components/AddBookForm";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import EditBookForm from "@/components/EditBookForm";
 
 const Books = () => {
     const { data: books = [], isLoading, refetch } = useGetBooksQuery({});
@@ -64,9 +65,21 @@ const Books = () => {
                                 <Button variant="outline" size="icon">
                                     <Eye className="w-4 h-4" />
                                 </Button>
-                                <Button variant="outline" size="icon">
-                                    <Edit className="w-4 h-4" />
-                                </Button>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" size="icon">
+                                            <Edit className="w-4 h-4" />
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-md">
+                                        <DialogHeader>
+                                            <DialogTitle>Edit Book</DialogTitle>
+                                        </DialogHeader>
+                                        <EditBookForm
+                                            book={book}
+                                        />
+                                    </DialogContent>
+                                </Dialog>
                                 <Button variant="destructive" size="icon">
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
