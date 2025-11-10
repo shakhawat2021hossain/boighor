@@ -1,5 +1,3 @@
-"use client";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -15,9 +13,12 @@ import { useEditBookMutation } from "@/redux/api/baseApi";
 
 interface EditBookFormProps {
     book: IBook;
+    setEditOpen: (value: boolean) => void;
+    refetch: () => void;
 }
 
-const EditBookForm = ({ book }: EditBookFormProps) => {
+const EditBookForm = ({ book, refetch, setEditOpen }: EditBookFormProps) => {
+    console.log(book)
     const [editBook] = useEditBookMutation();
 
     const form = useForm({
@@ -39,8 +40,13 @@ const EditBookForm = ({ book }: EditBookFormProps) => {
         try {
             await editBook({ bookId: book._id, editData }).unwrap();
             toast.success("Book updated successfully!");
+            refetch()
+            setEditOpen(false)
+
         } catch {
             toast.error("Failed to update book.");
+            setEditOpen(false)
+
         }
     };
 

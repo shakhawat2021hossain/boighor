@@ -6,7 +6,6 @@ const Navbar: React.FC = () => {
 
     const navLinks = [
         { title: "Books", path: "/books" },
-        { title: "Add Book", path: "/add-book" },
         { title: "Summary", path: "/summary" },
     ];
 

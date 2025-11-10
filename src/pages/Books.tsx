@@ -2,17 +2,40 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useGetBooksQuery } from "@/redux/api/baseApi";
+import { useDeleteBookMutation, useGetBooksQuery } from "@/redux/api/baseApi";
 import AddBookForm from "@/components/AddBookForm";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, BookOpen, Loader } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import EditBookForm from "@/components/EditBookForm";
+import toast from "react-hot-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import BorrowBookForm from "@/components/BorrowBookForm";
+import { Link } from "react-router";
 
 const Books = () => {
-    const { data: books = [], isLoading, refetch } = useGetBooksQuery({});
-    const [open, setOpen] = useState(false);
+    const [selectedBook, setSelectedBook] = useState<any>(null);
 
-    if (isLoading) return <div className="text-center mt-10">Loading...</div>;
+    const { data: books = [], isLoading, refetch } = useGetBooksQuery({});
+    const [deleteBook] = useDeleteBookMutation()
+    console.log(books)
+
+    const [open, setOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [borrowOpen, setBorrowOpen] = useState(false);
+    console.log(borrowOpen)
+
+
+    const onDelete = async (bookId: string) => {
+        await deleteBook(bookId)
+        toast.success("Deleted Book Successfully!")
+        refetch();
+    }
+
+
+    if (isLoading) return <div className="flex justify-center items-center h-64">
+        <Loader className="h-8 w-8 animate-spin text-primary" />
+    </div>
+
 
     return (
         <div className="p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-md max-w-7xl mx-auto my-6">
@@ -61,13 +84,22 @@ const Books = () => {
                                     <Badge className="bg-red-500">Out of Stock</Badge>
                                 )}
                             </TableCell>
+
                             <TableCell className="text-right space-x-2">
-                                <Button variant="outline" size="icon">
-                                    <Eye className="w-4 h-4" />
-                                </Button>
-                                <Dialog>
+                                <Link to={`/books/${book._id}`}>
+                                    <Button variant="outline" size="icon">
+                                        <Eye className="w-4 h-4" />
+                                    </Button>
+                                </Link>
+
+
+                                <Dialog open={editOpen} onOpenChange={setEditOpen}>
                                     <DialogTrigger asChild>
-                                        <Button variant="outline" size="icon">
+                                        <Button variant="outline" size="icon"
+                                            onClick={() => {
+                                                setSelectedBook(book)
+                                            }}
+                                        >
                                             <Edit className="w-4 h-4" />
                                         </Button>
                                     </DialogTrigger>
@@ -75,15 +107,46 @@ const Books = () => {
                                         <DialogHeader>
                                             <DialogTitle>Edit Book</DialogTitle>
                                         </DialogHeader>
-                                        <EditBookForm
-                                            book={book}
-                                        />
+                                        <EditBookForm book={selectedBook} refetch={refetch} setEditOpen={setEditOpen} />
                                     </DialogContent>
                                 </Dialog>
-                                <Button variant="destructive" size="icon">
+
+                                {/* Borrow Button with Tooltip */}
+                                <Dialog open={borrowOpen} onOpenChange={setBorrowOpen}>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <DialogTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="icon"
+                                                        disabled={!book.available || book.copies === 0}
+                                                        onClick={() => {
+                                                            setSelectedBook(book)
+                                                        }}
+                                                    >
+                                                        <BookOpen className="w-4 h-4" />
+                                                    </Button>
+                                                </DialogTrigger>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Borrow</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                    <DialogContent className="max-w-sm">
+                                        <BorrowBookForm
+                                            book={selectedBook} refetch={refetch} setBorrowOpen={setBorrowOpen}
+                                        />
+                                    </DialogContent>
+
+                                </Dialog>
+
+                                <Button variant="destructive" size="icon" onClick={() => onDelete(book._id)}>
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
                             </TableCell>
+
                         </TableRow>
                     ))}
                 </TableBody>

@@ -148,7 +148,10 @@ const AddBookForm = ({ onSuccess }: AddBookFormProps) => {
                                 <FormItem>
                                     <FormLabel>Copies</FormLabel>
                                     <FormControl>
-                                        <Input type="number" placeholder="Enter number of copies" {...field} />
+                                        <Input
+                                            type="number"
+                                            placeholder="Enter number of copies" {...field}
+                                            onChange={(e) => field.onChange(Number(e.target.value))} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
